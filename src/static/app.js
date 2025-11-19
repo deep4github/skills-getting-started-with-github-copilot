@@ -10,15 +10,18 @@ document.addEventListener("DOMContentLoaded", () => {
       const response = await fetch("/activities");
       const activities = await response.json();
 
-      // Clear loading message
+      // Clear loading message and activity select to avoid duplicates
       activitiesList.innerHTML = "";
+      activitySelect.innerHTML = '<option value="">-- Select an activity --</option>';
 
       // Populate activities list
       Object.entries(activities).forEach(([name, details]) => {
         const activityCard = document.createElement("div");
         activityCard.className = "activity-card";
 
-        const spotsLeft = details.max_participants - details.participants.length;
+        // Normalize participants to an array
+        const participants = Array.isArray(details.participants) ? details.participants : [];
+        const spotsLeft = details.max_participants - participants.length;
 
         // Build card content with a participants section
         const title = document.createElement("h4");
@@ -42,7 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
         participantsSection.className = "participants-section";
 
         const participantsTitle = document.createElement("h5");
-        const count = Array.isArray(details.participants) ? details.participants.length : 0;
+        const count = participants.length;
         participantsTitle.textContent = count > 0 ? `Participants (${count})` : "Participants";
         participantsSection.appendChild(participantsTitle);
 
@@ -55,11 +58,11 @@ document.addEventListener("DOMContentLoaded", () => {
           return (parts[0][0] + parts[1][0]).substring(0, 2).toUpperCase();
         }
 
-        if (Array.isArray(details.participants) && details.participants.length > 0) {
+        if (participants.length > 0) {
           const ul = document.createElement("ul");
           ul.className = "participants-list";
 
-          details.participants.forEach((p) => {
+          participants.forEach((p) => {
             const li = document.createElement("li");
             li.className = "participant-item";
 
@@ -123,6 +126,9 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.textContent = result.message;
         messageDiv.className = "success";
         signupForm.reset();
+
+        // Refresh activities so participants list and availability update immediately
+        fetchActivities();
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
         messageDiv.className = "error";
