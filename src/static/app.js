@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
         avail.innerHTML = `<strong>Availability:</strong> ${spotsLeft} ${spotsLeft === 1 ? "spot" : "spots"} left`;
         activityCard.appendChild(avail);
 
-        // Participants section (updated: show count + avatar initials)
+        // Participants section (show count + avatar initials)
         const participantsSection = document.createElement("div");
         participantsSection.className = "participants-section";
 
@@ -46,10 +46,9 @@ document.addEventListener("DOMContentLoaded", () => {
         participantsTitle.textContent = count > 0 ? `Participants (${count})` : "Participants";
         participantsSection.appendChild(participantsTitle);
 
-        // Helper: make initials from a name/email
+        // Helper: initials from name/email
         function getInitials(text) {
           if (!text) return "?";
-          // use the part before @ for emails, otherwise split words
           const base = text.includes("@") ? text.split("@")[0] : text;
           const parts = base.split(/[\s._-]+/).filter(Boolean);
           if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
