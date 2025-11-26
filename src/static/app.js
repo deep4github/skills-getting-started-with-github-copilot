@@ -72,8 +72,34 @@ document.addEventListener("DOMContentLoaded", () => {
             nameSpan.textContent = p;
             nameSpan.title = p;
 
+            // Delete icon button
+            const deleteBtn = document.createElement("button");
+            deleteBtn.className = "delete-participant";
+            deleteBtn.title = `Remove ${p}`;
+            deleteBtn.innerHTML = "&#10006;"; // Unicode cross icon
+            deleteBtn.onclick = async (e) => {
+              e.stopPropagation();
+              deleteBtn.disabled = true;
+              try {
+                const response = await fetch(
+                  `/activities/${encodeURIComponent(name)}/unregister?email=${encodeURIComponent(p)}`,
+                  { method: "POST" }
+                );
+                if (response.ok) {
+                  fetchActivities();
+                } else {
+                  alert("Failed to remove participant.");
+                  deleteBtn.disabled = false;
+                }
+              } catch (err) {
+                alert("Error removing participant.");
+                deleteBtn.disabled = false;
+              }
+            };
+
             li.appendChild(initial);
             li.appendChild(nameSpan);
+            li.appendChild(deleteBtn);
             ul.appendChild(li);
           });
 
@@ -122,8 +148,8 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.className = "success";
         signupForm.reset();
 
-        // Refresh activities so participants list updates immediately
-        fetchActivities();
+        // Ensure activities list is refreshed after registration
+        await fetchActivities();
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
         messageDiv.className = "error";
